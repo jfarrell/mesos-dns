@@ -177,6 +177,7 @@ func SetConfig(cjson string) (c Config) {
 	logging.Verbose.Println("   - HttpPort: ", c.HttpPort)
 	logging.Verbose.Println("   - HttpOn: ", c.HttpOn)
 	logging.Verbose.Println("   - ConfigFile: ", c.File)
+	logging.Verbose.Println("   - EnforceDNS952: ", c.EnforceDNS952)
 
 	return c
 }
