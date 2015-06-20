@@ -68,12 +68,14 @@ type Config struct {
 
 	// Enable replies for external requests
 	ExternalOn bool
+
+	// EnforceDNS952 will enforce an older, more strict set of rules for DNS labels
+	EnforceDNS952 bool
 }
 
 // SetConfig instantiates a Config struct read in from config.json
 func SetConfig(cjson string) (c Config) {
 	c = Config{
-		Zk:             "",
 		RefreshSeconds: 60,
 		TTL:            60,
 		Domain:         "mesos",

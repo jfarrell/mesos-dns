@@ -81,8 +81,14 @@ func (rg *RecordGenerator) ParseState(leader string, c Config) error {
 		return err
 	}
 
+	hostSpec := labels.HostNameSpec1123
+	if c.EnforceDNS952 {
+		hostSpec = labels.HostNameSpec952
+	}
+	nameSpec := hostSpec.Spec()
+
 	// insert state
-	rg.InsertState(sj, c.Domain, c.SOARname, c.Listener, c.Masters)
+	rg.InsertState(sj, c.Domain, c.SOARname, c.Listener, c.Masters, nameSpec)
 	return nil
 }
 
@@ -218,22 +224,22 @@ func hostToIP4(hostname string) (string, bool) {
 
 // attempt to convert the slave hostname to an IP4 address. if that fails, then
 // sanitize the hostname for DNS compat.
-func sanitizedSlaveAddress(hostname string) string {
+func sanitizedSlaveAddress(hostname string, spec labels.Spec) string {
 	address, ok := hostToIP4(hostname)
 	if !ok {
-		address = labels.AsDomainFrag(address)
+		address = labels.AsDomainFrag(address, spec)
 	}
 	return address
 }
 
 // InsertState transforms a StateJSON into RecordGenerator RRs
 func (rg *RecordGenerator) InsertState(sj StateJSON, domain string, ns string,
-	listener string, masters []string) error {
+	listener string, masters []string, spec labels.Spec) error {
 
 	// creates a map with slave IP addresses (IPv4)
 	rg.Slaves = make(map[string]string)
 	for _, slave := range sj.Slaves {
-		rg.Slaves[slave.Id] = sanitizedSlaveAddress(slave.Hostname)
+		rg.Slaves[slave.Id] = sanitizedSlaveAddress(slave.Hostname, spec)
 	}
 
 	rg.SRVs = make(rrs)
@@ -241,7 +247,7 @@ func (rg *RecordGenerator) InsertState(sj StateJSON, domain string, ns string,
 
 	// complete crap - refactor me
 	for _, f := range sj.Frameworks {
-		fname := labels.AsDomainFrag(f.Name)
+		fname := labels.AsDomainFrag(f.Name, spec)
 
 		for _, task := range f.Tasks {
 			host, ok := rg.Slaves[task.SlaveId]
