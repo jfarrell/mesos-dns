@@ -82,13 +82,12 @@ func (rg *RecordGenerator) ParseState(leader string, c Config) error {
 	}
 
 	hostSpec := labels.HostNameSpec1123
-	if c.EnforceDNS952 {
+	if c.EnforceRFC952 {
 		hostSpec = labels.HostNameSpec952
 	}
-	nameSpec := hostSpec.Spec()
 
 	// insert state
-	rg.InsertState(sj, c.Domain, c.SOARname, c.Listener, c.Masters, nameSpec)
+	rg.InsertState(sj, c.Domain, c.SOARname, c.Listener, c.Masters, hostSpec)
 	return nil
 }
 
@@ -224,17 +223,17 @@ func hostToIP4(hostname string) (string, bool) {
 
 // attempt to convert the slave hostname to an IP4 address. if that fails, then
 // sanitize the hostname for DNS compat.
-func sanitizedSlaveAddress(hostname string, spec labels.Spec) string {
+func sanitizedSlaveAddress(hostname string, spec labels.HostNameSpec) string {
 	address, ok := hostToIP4(hostname)
 	if !ok {
-		address = labels.AsDomainFrag(address, spec)
+		address = spec.AsDomainFrag(address)
 	}
 	return address
 }
 
 // InsertState transforms a StateJSON into RecordGenerator RRs
 func (rg *RecordGenerator) InsertState(sj StateJSON, domain string, ns string,
-	listener string, masters []string, spec labels.Spec) error {
+	listener string, masters []string, spec labels.HostNameSpec) error {
 
 	// creates a map with slave IP addresses (IPv4)
 	rg.Slaves = make(map[string]string)
@@ -244,11 +243,11 @@ func (rg *RecordGenerator) InsertState(sj StateJSON, domain string, ns string,
 
 	rg.SRVs = make(rrs)
 	rg.As = make(rrs)
+	mangler := spec.Mangler()
 
 	// complete crap - refactor me
 	for _, f := range sj.Frameworks {
-		fname := labels.AsDomainFrag(f.Name, spec)
-
+		fname := spec.AsDomainFrag(f.Name)
 		for _, task := range f.Tasks {
 			host, ok := rg.Slaves[task.SlaveId]
 			// skip not running or not discoverable tasks
@@ -256,7 +255,7 @@ func (rg *RecordGenerator) InsertState(sj StateJSON, domain string, ns string,
 				continue
 			}
 
-			tname := labels.AsDNS952(task.Name)
+			tname := mangler.Mangle(task.Name)
 			sid := slaveIdTail(task.SlaveId)
 			tag := hashString(task.Id)
 			tail := fname + "." + domain + "."

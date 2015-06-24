@@ -4,21 +4,26 @@ import (
 	"fmt"
 )
 
-// LabelSeparator delimits concatenated labels.
-const LabelSeparator = '.'
+const (
+	// LabelSeparator delimits concatenated labels.
+	SeparatorChar = '.'
 
-// Spec is a label specification interface
-type Spec interface {
+	DNS952MaxLength  int = 24
+	DNS1123MaxLength int = 63
+)
+
+// Mangler is a label mangling interface
+type Mangler interface {
 	// Mangle transforms an input string to produce an output string that is
 	// compliant with the specification. If the input string is already
 	// compliant then it is returned unchanged.
 	Mangle(string) string
 }
 
-// SpecFunc implements Spec
-type SpecFunc func(string) string
+// ManglerFunc implements Mangler
+type ManglerFunc func(string) string
 
-func (sf SpecFunc) Mangle(input string) string {
+func (sf ManglerFunc) Mangle(input string) string {
 	return sf(input)
 }
 
@@ -32,12 +37,16 @@ const (
 	HostNameSpec1123
 )
 
-func (spec HostNameSpec) Spec() Spec {
+func (spec HostNameSpec) Mangler() Mangler {
 	switch spec {
 	case HostNameSpec952:
-		return SpecFunc(AsDNS952)
+		return ManglerFunc(func(s string) string { return dns952table.toLabel(s, DNS952MaxLength) })
 	case HostNameSpec1123:
-		return SpecFunc(AsDNS1123)
+		return ManglerFunc(func(s string) string { return dns1123table.toLabel(s, DNS1123MaxLength) })
 	}
 	panic(fmt.Sprintf("bad HostNameSpec: %#v", spec))
+}
+
+func (spec HostNameSpec) AsDomainFrag(s string) string {
+	return AsDomainFrag(s, spec.Mangler())
 }

@@ -69,8 +69,8 @@ type Config struct {
 	// Enable replies for external requests
 	ExternalOn bool
 
-	// EnforceDNS952 will enforce an older, more strict set of rules for DNS labels
-	EnforceDNS952 bool
+	// EnforceRFC952 will enforce an older, more strict set of rules for DNS labels
+	EnforceRFC952 bool
 }
 
 // SetConfig instantiates a Config struct read in from config.json
@@ -177,7 +177,7 @@ func SetConfig(cjson string) (c Config) {
 	logging.Verbose.Println("   - HttpPort: ", c.HttpPort)
 	logging.Verbose.Println("   - HttpOn: ", c.HttpOn)
 	logging.Verbose.Println("   - ConfigFile: ", c.File)
-	logging.Verbose.Println("   - EnforceDNS952: ", c.EnforceDNS952)
+	logging.Verbose.Println("   - EnforceRFC952: ", c.EnforceRFC952)
 
 	return c
 }

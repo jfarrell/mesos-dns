@@ -2,8 +2,8 @@ package labels
 
 // mangles the given name in order to produce a valid domain fragment.
 // a valid domain fragment will consist of one or more host name labels
-// concatenated by a LabelSeparator char.
-func AsDomainFrag(name string, spec Spec) string {
+// concatenated by a SeparatorChar char.
+func AsDomainFrag(name string, spec Mangler) string {
 	if name == "" {
 		return ""
 	}
@@ -12,10 +12,10 @@ func AsDomainFrag(name string, spec Spec) string {
 	ll := 0  // overall fragment length so far
 	li := -1 // last fragment we found ended here
 	for i, c := range name {
-		if c == LabelSeparator {
+		if c == SeparatorChar {
 			if f := spec.Mangle(name[li+1 : i]); f != "" {
 				if li > -1 {
-					frag[ll] = LabelSeparator
+					frag[ll] = SeparatorChar
 					ll++
 				}
 				// len(f) is <= len(slice-of-name)
@@ -28,7 +28,7 @@ func AsDomainFrag(name string, spec Spec) string {
 	// final frag
 	if f := spec.Mangle(name[li+1:]); f != "" {
 		if li > -1 {
-			frag[ll] = LabelSeparator
+			frag[ll] = SeparatorChar
 			ll++
 		}
 		copy(frag[ll:], f)

@@ -72,4 +72,4 @@ It is sufficient to specify just one of the `zk` or `masters` field. If both are
 
 `recurseon` controls if the DNS replies for names in the Mesos domain will indicate that recursion is available. The default value is `true`. 
 
-`enforceDNS952` will enforce an older, more strict set of rules for DNS labels. For details, see the [RFC-952](https://tools.ietf.org/html/rfc952). The default value is `false`.
+`enforceRFC952` will enforce an older, more strict set of rules for DNS labels. For details, see the [RFC-952](https://tools.ietf.org/html/rfc952). The default value is `false`.

@@ -55,11 +55,11 @@ func TestAsDomainFrag(t *testing.T) {
 		{"MiXeDcase.CoM", "mixedcase.com", trueValue},
 	}
 	for i, tc := range cases {
-		act952 := AsDomainFrag(tc.input, HostNameSpec952.Spec())
+		act952 := AsDomainFrag(tc.input, HostNameSpec952.Mangler())
 		if act952 != tc.output952 {
 			t.Fatalf("expected %q instead of %q for case %d", tc.output952, act952, i)
 		}
-		act1123 := AsDomainFrag(tc.input, HostNameSpec1123.Spec())
+		act1123 := AsDomainFrag(tc.input, HostNameSpec1123.Mangler())
 		switch tc.output1123.vtype {
 		case boolType:
 			if !tc.output1123.vbool {

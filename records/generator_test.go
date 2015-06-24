@@ -146,7 +146,7 @@ func TestMasterRecord(t *testing.T) {
 }
 
 func TestSanitizedSlaveAddress(t *testing.T) {
-	spec := labels.HostNameSpec952.Spec()
+	spec := labels.HostNameSpec952
 	x := sanitizedSlaveAddress("1.2.3.4", spec)
 	if x != "1.2.3.4" {
 		t.Fatalf("unexpected slave address %q", x)
@@ -246,7 +246,7 @@ func TestInsertState(t *testing.T) {
 	sj.Leader = "master@144.76.157.37:5050"
 
 	masters := []string{"144.76.157.37:5050"}
-	spec := labels.HostNameSpec952.Spec()
+	spec := labels.HostNameSpec952
 	rg := &RecordGenerator{}
 	rg.InsertState(sj, "mesos", "mesos-dns.mesos.", "127.0.0.1", masters, spec)
 
