@@ -40,6 +40,12 @@ test.v: test_banner
 testrace:
 	@godep go test -race ./...
 
+docker_img:
+	@docker build -t mesos-dns .
+
+docker_run:
+	@docker run -it --rm -v $(shell pwd):/usr/share/go/src/github.com/mesosphere/mesos-dns mesos-dns bash
+
 clean:
 	@echo "--> Cleaning mesos-dns"
 	@godep go clean
